@@ -20,9 +20,9 @@ def csv2ant(csvfn,antfn):
     idat = fdat(aznew)
     idat = DataArray(idat, coords={'azimuth':aznew}, dims=['azimuth'])
 
-    ndat = np.column_stack([aznew,idat])
+    ndat = 10*np.log10(idat.values)
 
-    np.savetxt(antfn, ndat)
+    np.savetxt(antfn, ndat, fmt='%.2f')  # only write amplitude, azimuth is implied
 
     return idat
 
