@@ -1,24 +1,38 @@
 from pathlib import Path
-from scipy.interpolation import interp1d
+from scipy.interpolate import interp1d
 from pandas import read_csv
-from numpy import savetxt,arange
+import numpy as np
+from xarray import DataArray
+from matplotlib.pyplot import figure
 
 def csv2ant(csvfn,antfn):
     """
     assume first column is azimuth (deg.) and second column is normalized antenna pattern.
     """
     csvfn = Path(csvfn).expanduser()
-    dat = read_csv(csvfn)
+    dat = read_csv(csvfn, header=None, names=['azimuth','amplitude'])
 
     antfn = Path(antfn).expanduser()
 # %% interp
-    fdat = interp1d(dat[:,0], dat[:,1])
+    fdat = interp1d(dat['azimuth'], dat['amplitude'])
 
-    aznew = arange(360.)
+    aznew = np.arange(360.)
     idat = fdat(aznew)
+    idat = DataArray(idat, coords={'azimuth':aznew}, dims=['azimuth'])
 
-    savetxt(antfn, idat)
+    ndat = np.column_stack([aznew,idat])
 
-    return idat,aznew
+    np.savetxt(antfn, ndat)
 
-def plot_ant_pattern(dat):
+    return idat
+
+def plot_ant_pattern(dat, ttxt):
+    ax = figure().gca(polar=True)
+
+    ax.set_theta_zero_location('N')
+    ax.set_theta_direction(-1)
+
+    ax.plot(np.radians(dat.azimuth), dat)
+
+    ax.set_title(ttxt)
+    ax.set_xlabel('azimuth (deg.)')

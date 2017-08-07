@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-req = ['nose','numpy']
+req = ['nose','numpy','scipy','matplotlib','seaborn']
 # %%
 import pip
 try:
