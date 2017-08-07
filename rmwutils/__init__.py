@@ -22,6 +22,8 @@ def csv2ant(csvfn,antfn):
 
     ndat = 10*np.log10(idat.values)
 
+    assert ndat.shape==(360,)
+
     np.savetxt(antfn, ndat, fmt='%.2f')  # only write amplitude, azimuth is implied
 
     return idat
