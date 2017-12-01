@@ -1,17 +1,10 @@
 #!/usr/bin/env python
-req = ['nose','numpy','scipy','matplotlib','seaborn']
+install_requires = ['numpy','scipy','matplotlib','seaborn']
 # %%
-import pip
-try:
-    import conda.cli
-    conda.cli.main('install',*req)
-except Exception as e:
-    pip.main(['install'] + req)
-# %%
-from setuptools import setup
+from setuptools import setup,find_packages,
 
 setup(name='rmwutils',
-      packages=['rmwutils'],
+      packages=find_packages(),
       version = '1.0.0',
       description='Support utilities for Radio Mobile Deluxe progation predication.',
       author = 'Michael Hirsch, Ph.D.',
@@ -23,6 +16,7 @@ setup(name='rmwutils',
       'Topic :: Scientific/Engineering :: GIS',
       'Programming Language :: Python :: 3',
       ],
-      install_requires=req,
+      install_requires=install_requires,
+      python_requires='>=3.5',
 	  )
 

@@ -4,6 +4,11 @@ Radio Mobile Deluxe Utils
 
 Helper programs for Roger Coude's Radio Mobile Deluxe.
 
+Install
+=======
+::
+
+    pip install -e .
 
 Programs
 ========
