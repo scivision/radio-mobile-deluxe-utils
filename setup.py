@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-install_requires = ['numpy','scipy','matplotlib','seaborn']
+install_requires = ['numpy','scipy']
 # %%
-from setuptools import setup,find_packages,
+from setuptools import setup,find_packages
 
 setup(name='rmwutils',
       packages=find_packages(),
       version = '1.0.0',
       description='Support utilities for Radio Mobile Deluxe progation predication.',
+      long_description=open('README.rst').read(),
       author = 'Michael Hirsch, Ph.D.',
       url = 'https://github.com/scivision/radio-mobile-deluxe-utils',
       classifiers=[
@@ -17,6 +18,7 @@ setup(name='rmwutils',
       'Programming Language :: Python :: 3',
       ],
       install_requires=install_requires,
+      extras_require={'plot':['matplotlib','seaborn']},
       python_requires='>=3.5',
 	  )
 

@@ -1,40 +1,68 @@
 from pathlib import Path
 from scipy.interpolate import interp1d
-from pandas import read_csv
 import numpy as np
-from xarray import DataArray
-from matplotlib.pyplot import figure
+try:
+    from matplotlib.pyplot import figure
+except ImportError:
+    figure=None
 
-def csv2ant(csvfn,antfn):
+def csv2ant(csvfn:Path, antfn:Path=None):
     """
     assume first column is azimuth (deg.) and second column is normalized antenna pattern.
+    http://radiomobile.pe1mew.nl/?The_program:File_formats:Antenna_.ant_format_%28V1%29
+
+    Units are dB relative to boresite gain, NOT dBd, dBi etc. just relative gain from maximum.
+
+    angles must be from 0 to 359 degrees, 1 degree step.
     """
     csvfn = Path(csvfn).expanduser()
-    dat = read_csv(csvfn, header=None, names=['azimuth','amplitude'])
+    dat = np.loadtxt(csvfn, delimiter=',')
 
-    antfn = Path(antfn).expanduser()
+    if antfn:
+        antfn = Path(antfn).expanduser()
+    else:
+        antfn = csvfn.with_suffix('.ant')
+
+    assert dat.ndim==2 and dat.shape[1] == 2
+
+# wraparound FCC 0-350 degree data
+    if (dat[0,0]==0) and (dat[-1,0]==350):
+        dat = np.append(dat, np.array([360,dat[0,1]])[None,:], axis=0)
 # %% interp
-    fdat = interp1d(dat['azimuth'], dat['amplitude'])
+    fdat = interp1d(dat[:,0], dat[:,1])
 
-    aznew = np.arange(360.)
+    aznew = np.arange(0,360.,1)
     idat = fdat(aznew)
-    idat = DataArray(idat, coords={'azimuth':aznew}, dims=['azimuth'])
 
-    ndat = 10*np.log10(idat.values)
+    idat = np.column_stack((aznew, idat, 20*np.log10(idat)))
 
-    assert ndat.shape==(360,)
-
-    np.savetxt(antfn, ndat, fmt='%.2f')  # only write amplitude, azimuth is implied
+    print('writing',antfn)
+    """
+    only write amplitude, azimuth is implied
+    \r\n is required, even under WINE
+    """
+    np.savetxt(antfn, idat[:,2], fmt='%.2f', newline='\r\n')
 
     return idat
 
-def plot_ant_pattern(dat, ttxt):
-    ax = figure().gca(polar=True)
 
-    ax.set_theta_zero_location('N')
-    ax.set_theta_direction(-1)
+def plot_ant_pattern(dat:np.ndarray, ttxt:str=''):
+    if figure is None:
+        return
 
-    ax.plot(np.radians(dat.azimuth), dat)
+    ax = [figure().gca(polar=True)]
 
-    ax.set_title(ttxt)
-    ax.set_xlabel('azimuth (deg.)')
+    ax[0].plot(np.radians(dat[:,0]), dat[:,1])
+   # ax[1].plot(np.radians(dat[:,0]), dat[:,2])
+
+    for a in ax:
+        a.set_theta_zero_location('N')
+        a.set_theta_direction(-1)
+
+        a.set_rmax(1)
+
+        a.set_xlabel('azimuth (deg.)')
+        a.set_title(ttxt)
+
+    ax[0].set_ylabel('relative amplitude')
+    #ax[1]
