@@ -5,7 +5,7 @@ from setuptools import setup,find_packages
 
 setup(name='rmwutils',
       packages=find_packages(),
-      version = '1.0.0',
+      version = '1.0.1',
       description='Support utilities for Radio Mobile Deluxe progation predication.',
       long_description=open('README.rst').read(),
       author = 'Michael Hirsch, Ph.D.',
